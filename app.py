@@ -71,6 +71,8 @@ if url:
         # Generate a unique filename for the cropped image
         filename = f"cropped_{label.item()}.jpg"
         cropped_filenames.append(filename)
+        # Save the cropped image
+        cropped_image.save(filename, format='JPEG')
 
         # Save the cropped image
         cropped_image.convert('RGB').save(filename, format='JPEG')
