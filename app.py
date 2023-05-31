@@ -73,8 +73,6 @@ if url:
         cropped_filenames.append(filename)
 
         # Save the cropped image
-        cropped_image.save(filename, format='JPEG')
-        # Save the cropped image in JPEG format
         cropped_image.convert('RGB').save(filename, format='JPEG')
 
 
