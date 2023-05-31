@@ -93,5 +93,5 @@ if url:
                 col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
 
                 # Add a download button for the cropped image
-                download_button_str = f"Download {filename}"
+ download_button_str = f"Download {filename}"
                 col.download_button(download_button_str, data=open(filename, 'rb'))
