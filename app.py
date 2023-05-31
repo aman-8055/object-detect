@@ -3,6 +3,7 @@ from PIL import Image
 import torch
 import requests
 import os
+import base64
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
 # Load the YOLO model and image processor
