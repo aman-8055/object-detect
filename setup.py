@@ -9,6 +9,7 @@ setup(
         'torch',
         'transformers',
         'Pillow'
+        'requests==2.26.0'
     ],
     entry_points={
         'console_scripts': [
