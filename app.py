@@ -51,8 +51,9 @@ if url:
     target_sizes = torch.tensor([image.size[::-1]])
     results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-    # Create a list to store cropped images
+    # Create a list to store cropped images and their filenames
     cropped_images = []
+    cropped_filenames = []
 
     # Display the detected objects and their bounding boxes
     for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -66,11 +67,30 @@ if url:
         cropped_image = crop_image(url, box)
         cropped_images.append(cropped_image)
 
+        # Generate a unique filename for the cropped image
+        filename = f"cropped_{label.item()}.png"
+        cropped_filenames.append(filename)
+
+        # Save the cropped image
+        cropped_image.save(filename)
+
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
 
-    # Arrange cropped images in a grid
-    cols = st.columns(3)  # Number of columns in the grid
-    for i, col in enumerate(cols):
-        if i < len(cropped_images):
-            col.image(cropped_images[i], caption=f"Cropped Image {i+1}", use_column_width=True)
+    # Arrange cropped images in a matrix with download buttons
+    num_images = len(cropped_images)
+    num_columns = 3
+    num_rows = (num_images + num_columns - 1) // num_columns
+
+    for row in range(num_rows):
+        cols = st.columns(num_columns)
+        for col in cols:
+            if cropped_images:
+                cropped_image = cropped_images.pop(0)
+                filename = cropped_filenames.pop(0)
+
+                # Display the cropped image
+                col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
+
+                # Add a download button for the cropped image
+                download_button_str
