@@ -5,6 +5,7 @@ import requests
 import os
 import base64
 from transformers import YolosImageProcessor, YolosForObjectDetection
+import time
 
 # Load the YOLO model and image processor
 model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
@@ -69,7 +70,7 @@ if url:
         cropped_images.append(cropped_image)
 
         # Generate a unique filename for the cropped image
-        filename = f"cropped_{label.item()}.jpg"
+        filename = f"cropped_{label.item()}_{int(time.time())}.jpg"
         cropped_filenames.append(filename)
 
         # Save the cropped image in JPEG format
