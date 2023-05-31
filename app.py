@@ -32,7 +32,7 @@ def crop_image(image_url, coordinates):
     return cropped_image
 
 # Streamlit app
-st.title("Object Detection with YOLO")
+st.title("Object Detection")
 
 # Display an input text box for the image URL
 url = st.text_input("Enter the image URL:")
