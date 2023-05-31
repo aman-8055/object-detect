@@ -8,6 +8,12 @@ from transformers import YolosImageProcessor, YolosForObjectDetection
 model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
 image_processor = YolosImageProcessor.from_pretrained("hustvl/yolos-tiny")
 
+# Function to crop image using coordinates
+def crop_image(image_path, coordinates):
+    image = Image.open(image_path)
+    cropped_image = image.crop(coordinates)
+    return cropped_image
+
 # Streamlit app
 st.title("Object Detection with YOLO")
 
@@ -36,6 +42,10 @@ if url:
             f"Detected {model.config.id2label[label.item()]} with confidence "
             f"{round(score.item(), 3)} at location {box}"
         )
+        
+        # Crop the image based on the bounding box coordinates
+        cropped_image = crop_image(url, box)
+        st.image(cropped_image, caption="Cropped Image", use_column_width=True)
 
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
