@@ -93,7 +93,13 @@ if url:
                 # Display the cropped image
                 col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
 
+                # Read the cropped image data
+                with open(filename, "rb") as f:
+                    image_data = f.read()
+
+                # Generate base64-encoded image data
+                b64_image = base64.b64encode(image_data).decode()
+
                 # Add a download button for the cropped image
                 download_button_str = f"Download {filename}"
-                b64_image = base64.b64encode(open(filename, "rb").read()).decode()
                 col.markdown(f'<a href="data:image/jpeg;base64,{b64_image}" download="{filename}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
