@@ -5,7 +5,7 @@ setup(
     version='1.0',
     packages=find_packages(),
     install_requires=[
-        'streamlit',
+        'streamlit==1.4.0',
         'torch',
         'transformers',
         'Pillow'
