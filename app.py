@@ -51,6 +51,9 @@ if url:
     target_sizes = torch.tensor([image.size[::-1]])
     results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
+    # Create a list to store cropped images
+    cropped_images = []
+
     # Display the detected objects and their bounding boxes
     for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
         box = [round(i, 2) for i in box.tolist()]
@@ -61,7 +64,13 @@ if url:
         
         # Crop the image based on the bounding box coordinates
         cropped_image = crop_image(url, box)
-        st.image(cropped_image, caption="Cropped Image", use_column_width=True)
+        cropped_images.append(cropped_image)
 
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
+
+    # Arrange cropped images in a grid
+    cols = st.beta_columns(3)  # Number of columns in the grid
+    for i, col in enumerate(cols):
+        if i < len(cropped_images):
+            col.image(cropped_images[i], caption=f"Cropped Image {i+1}", use_column_width=True)
