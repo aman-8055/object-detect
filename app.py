@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import torch
 import requests
+import os
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
 # Load the YOLO model and image processor
@@ -9,9 +10,24 @@ model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
 image_processor = YolosImageProcessor.from_pretrained("hustvl/yolos-tiny")
 
 # Function to crop image using coordinates
-def crop_image(image_path, coordinates):
+def crop_image(image_url, coordinates):
+    # Download the image and save it locally
+    image_path = os.path.basename(image_url)
+    response = requests.get(image_url, stream=True)
+    response.raise_for_status()
+    with open(image_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+
+    # Open the downloaded image
     image = Image.open(image_path)
+
+    # Crop the image using the coordinates
     cropped_image = image.crop(coordinates)
+
+    # Remove the downloaded image
+    os.remove(image_path)
+
     return cropped_image
 
 # Streamlit app
