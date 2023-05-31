@@ -71,12 +71,9 @@ if url:
         # Generate a unique filename for the cropped image
         filename = f"cropped_{label.item()}.jpg"
         cropped_filenames.append(filename)
+
         # Save the cropped image
         cropped_image.save(filename, format='JPEG')
-
-        # Save the cropped image
-        cropped_image.convert('RGB').save(filename, format='JPEG')
-
 
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
@@ -98,4 +95,4 @@ if url:
 
                 # Add a download button for the cropped image
                 download_button_str = f"Download {filename}"
-                col.markdown(f'<a href="data:application/octet-stream;base64,{base64.b64encode(open(filename, "rb").read()).decode()}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
+col.markdown(f'<a href="data:application/octet-stream;base64,{base64.b64encode(open(filename, "rb").read()).decode()}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
