@@ -69,11 +69,11 @@ if url:
         cropped_images.append(cropped_image)
 
         # Generate a unique filename for the cropped image
-        filename = f"cropped_{label.item()}.png"
+        filename = f"cropped_{label.item()}.jpg"
         cropped_filenames.append(filename)
 
         # Save the cropped image
-        cropped_image.save(filename)
+        cropped_image.save(filename, format='JPEG')
 
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
