@@ -57,7 +57,7 @@ if url:
     cropped_filenames = []
 
     # Display the detected objects and their bounding boxes
-    for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+    for idx, (score, label, box) in enumerate(zip(results["scores"], results["labels"], results["boxes"])):
         box = [round(i, 2) for i in box.tolist()]
         st.write(
             f"Detected {model.config.id2label[label.item()]} with confidence "
@@ -69,7 +69,7 @@ if url:
         cropped_images.append(cropped_image)
 
         # Generate a unique filename for the cropped image
-        filename = f"cropped_{label.item()}.jpg"
+        filename = f"cropped_{label.item()}_{idx}.jpg"
         cropped_filenames.append(filename)
 
         # Save the cropped image in JPEG format
