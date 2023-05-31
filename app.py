@@ -77,7 +77,7 @@ if url:
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
 
-    # Arrange cropped images in a matrix with download buttons
+    # Arrange cropped images in a matrix
     num_images = len(cropped_images)
     num_columns = 3
     num_rows = (num_images + num_columns - 1) // num_columns
@@ -92,5 +92,3 @@ if url:
                 # Display the cropped image
                 col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
 
-                # Add a download button for the cropped image
- 
