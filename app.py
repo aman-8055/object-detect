@@ -70,7 +70,7 @@ if url:
     st.image(image, caption="Input Image", use_column_width=True)
 
     # Arrange cropped images in a grid
-    cols = st.beta_columns(3)  # Number of columns in the grid
+    cols = st.columns(3)  # Number of columns in the grid
     for i, col in enumerate(cols):
         if i < len(cropped_images):
             col.image(cropped_images[i], caption=f"Cropped Image {i+1}", use_column_width=True)
