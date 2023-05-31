@@ -2,3 +2,4 @@ streamlit
 torch
 transformers
 Pillow
+requests==2.26.0
