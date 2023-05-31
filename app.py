@@ -94,5 +94,5 @@ if url:
                 col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
 
                 # Add a download button for the cropped image
-                download_button_str = f"Download {filename}"
-col.markdown(f'<a href="data:application/octet-stream;base64,{base64.b64encode(open(filename, "rb").read()).decode()}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
+               download_button_str = f"Download {filename}"
+                col.markdown(f'<a href="data:application/octet-stream;base64,{base64.b64encode(open(filename, "rb").read()).decode()}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
