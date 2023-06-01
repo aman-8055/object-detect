@@ -11,53 +11,33 @@ model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
 image_processor = YolosImageProcessor.from_pretrained("hustvl/yolos-tiny")
 
 # Function to crop image using coordinates
-def crop_image(image_url, coordinates):
-    # Download the image and save it locally
-    image_path = os.path.basename(image_url)
-    response = requests.get(image_url, stream=True)
-    response.raise_for_status()
-    with open(image_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-    # Open the downloaded image
-    image = Image.open(image_path)
-
+def crop_image(image, coordinates):
     # Crop the image using the coordinates
     cropped_image = image.crop(coordinates)
-
-    # Remove the downloaded image
-    os.remove(image_path)
 
     return cropped_image
 
 # Streamlit app
 st.title("Object Detection with YOLO")
 
-# Display an input text box for the image URL
-url = st.text_input("Enter the image URL:")
-if url:
-    # Load the image from the provided URL
-   option = st.radio("Choose Image Source:", ("URL", "Local File Upload"))
+# Option to choose image source (URL or local file upload)
+option = st.radio("Choose Image Source:", ("URL", "Local File Upload"))
 
 if option == "URL":
-# Display an input text box for the image URL
-url = st.text_input("Enter the image URL:")
-if url:
-# Load the image from the provided URL
-image = Image.open(requests.get(url, stream=True).raw)
+    # Display an input text box for the image URL
+    url = st.text_input("Enter the image URL:")
+    if url:
+        # Load the image from the provided URL
+        image = Image.open(requests.get(url, stream=True).raw)
 
 elif option == "Local File Upload":
-# Display a file uploader for local file upload
-file = st.file_uploader("Upload Image", type=["jpg"])
-if file is not None:
-# Load the image from the uploaded file
-image = Image.open(file)
+    # Display a file uploader for local file upload
+    file = st.file_uploader("Upload Image", type=["jpg"])
+    if file is not None:
+        # Load the image from the uploaded file
+        image = Image.open(file)
 
 if 'image' in locals():
-# Process the image using the YOLO model
-inputs = image_processor(images=image, return_tensors="pt")
-outputs = model(**inputs)
     # Process the image using the YOLO model
     inputs = image_processor(images=image, return_tensors="pt")
     outputs = model(**inputs)
@@ -83,7 +63,7 @@ outputs = model(**inputs)
         )
         
         # Crop the image based on the bounding box coordinates
-        cropped_image = crop_image(url, box)
+        cropped_image = crop_image(image, box)
         cropped_images.append(cropped_image)
 
         # Generate a unique filename for the cropped image
