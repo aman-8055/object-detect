@@ -16,6 +16,7 @@ def crop_image(image, coordinates):
     cropped_image = image.crop(coordinates)
 
     return cropped_image
+
 # Streamlit app
 st.title("Object Detection with YOLO")
 
@@ -25,13 +26,21 @@ url = st.text_input("Enter the image URL:")
 # Display a file uploader for local file upload
 file = st.file_uploader("Upload Image", type=["jpg"])
 
-if url or file:
-    if url:
+if url != "" or file is not None:
+    if url != "":
         # Load the image from the provided URL
-        image = Image.open(requests.get(url, stream=True).raw)
+        try:
+            image = Image.open(requests.get(url, stream=True).raw)
+        except Exception as e:
+            st.error(f"Error: Unable to load image from URL.\n{e}")
+            st.stop()
     else:
         # Load the image from the uploaded file
-        image = Image.open(file)
+        try:
+            image = Image.open(file)
+        except Exception as e:
+            st.error(f"Error: Unable to load uploaded image.\n{e}")
+            st.stop()
 
     # Process the image using the YOLO model
     inputs = image_processor(images=image, return_tensors="pt")
@@ -66,7 +75,11 @@ if url or file:
         cropped_filenames.append(filename)
 
         # Save the cropped image in JPEG format
-        cropped_image.convert('RGB').save(filename, format='JPEG')
+        try:
+            cropped_image.convert('RGB').save(filename, format='JPEG')
+        except Exception as e:
+            st.error(f"Error: Unable to save cropped image.\n{e}")
+            st.stop()
 
     # Display the input image
     st.image(image, caption="Input Image", use_column_width=True)
