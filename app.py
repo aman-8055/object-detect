@@ -4,9 +4,8 @@ import torch
 import requests
 import os
 import base64
+import subprocess
 from transformers import YolosImageProcessor, YolosForObjectDetection
-import watchdog.events
-import watchdog.observers
 
 # Load the YOLO model and image processor
 model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
@@ -20,113 +19,104 @@ def crop_image(image, coordinates):
     return cropped_image
 
 # Streamlit app
-st.title("Object Detection with YOLO")
+while True:
+    try:
+        st.title("Object Detection with YOLO")
 
-# Display an input text box for the image URL
-url = st.text_input("Enter the image URL:")
+        # Display an input text box for the image URL
+        url = st.text_input("Enter the image URL:")
 
-# Display a file uploader for local file upload
-file = st.file_uploader("Upload Image", type=["jpg"])
+        # Display a file uploader for local file upload
+        file = st.file_uploader("Upload Image", type=["jpg"])
 
-if url != "" or file is not None:
-    if url != "":
-        # Load the image from the provided URL
-        try:
-            image = Image.open(requests.get(url, stream=True).raw)
-        except Exception as e:
-            st.error(f"Error: Unable to load image from URL.\n{e}")
-            st.stop()
-    else:
-        # Load the image from the uploaded file
-        try:
-            image = Image.open(file)
-        except Exception as e:
-            st.error(f"Error: Unable to load uploaded image.\n{e}")
-            st.stop()
+        if url != "" or file is not None:
+            if url != "":
+                # Load the image from the provided URL
+                try:
+                    image = Image.open(requests.get(url, stream=True).raw)
+                except Exception as e:
+                    st.error(f"Error: Unable to load image from URL.\n{e}")
+                    st.stop()
+            else:
+                # Load the image from the uploaded file
+                try:
+                    image = Image.open(file)
+                except Exception as e:
+                    st.error(f"Error: Unable to load uploaded image.\n{e}")
+                    st.stop()
 
-    # Process the image using the YOLO model
-    inputs = image_processor(images=image, return_tensors="pt")
-    outputs = model(**inputs)
+            # Process the image using the YOLO model
+            inputs = image_processor(images=image, return_tensors="pt")
+            outputs = model(**inputs)
 
-    # Predict bounding boxes and classes
-    logits = outputs.logits
-    bboxes = outputs.pred_boxes
+            # Predict bounding boxes and classes
+            logits = outputs.logits
+            bboxes = outputs.pred_boxes
 
-    # Post-process the object detection results
-    target_sizes = torch.tensor([image.size[::-1]])
-    results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
+            # Post-process the object detection results
+            target_sizes = torch.tensor([image.size[::-1]])
+            results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-    # Create a list to store cropped images and their filenames
-    cropped_images = []
-    cropped_filenames = []
+            # Create a list to store cropped images and their filenames
+            cropped_images = []
+            cropped_filenames = []
 
-    # Display the detected objects and their bounding boxes
-    for idx, (score, label, box) in enumerate(zip(results["scores"], results["labels"], results["boxes"])):
-        box = [round(i, 2) for i in box.tolist()]
-        st.write(
-            f"Detected {model.config.id2label[label.item()]} with confidence "
-            f"{round(score.item(), 3)} at location {box}"
-        )
-        
-        # Crop the image based on the bounding box coordinates
-        cropped_image = crop_image(image, box)
-        cropped_images.append(cropped_image)
+            # Display the detected objects and their bounding boxes
+            for idx, (score, label, box) in enumerate(zip(results["scores"], results["labels"], results["boxes"])):
+                box = [round(i, 2) for i in box.tolist()]
+                st.write(
+                    f"Detected {model.config.id2label[label.item()]} with confidence "
+                    f"{round(score.item(), 3)} at location {box}"
+                )
 
-        # Generate a unique filename for the cropped image
-        filename = f"cropped_{label.item()}_{idx}.jpg"
-        cropped_filenames.append(filename)
+                # Crop the image based on the bounding box coordinates
+                cropped_image = crop_image(image, box)
+                cropped_images.append(cropped_image)
 
-        # Save the cropped image in JPEG format
-        try:
-            cropped_image.convert('RGB').save(filename, format='JPEG')
-        except Exception as e:
-            st.error(f"Error: Unable to save cropped image.\n{e}")
-            st.stop()
+                # Generate a unique filename for the cropped image
+                filename = f"cropped_{label.item()}_{idx}.jpg"
+                cropped_filenames.append(filename)
 
-    # Display the input image
-    st.image(image, caption="Input Image", use_column_width=True)
+                # Save the cropped image in JPEG format
+                try:
+                    cropped_image.convert('RGB').save(filename, format='JPEG')
+                except Exception as e:
+                    st.error(f"Error: Unable to save cropped image.\n{e}")
+                    st.stop()
 
-    # Arrange cropped images in a matrix with download buttons
-    num_images = len(cropped_images)
-    num_columns = 3
-    num_rows = (num_images + num_columns - 1) // num_columns
+            # Display the input image
+            st.image(image, caption="Input Image", use_column_width=True)
 
-    for row in range(num_rows):
-        cols = st.columns(num_columns)
-        for col in cols:
-            if cropped_images:
-                cropped_image = cropped_images.pop(0)
-                filename = cropped_filenames.pop(0)
+            # Arrange cropped images in a matrix with download buttons
+            num_images = len(cropped_images)
+            num_columns = 3
+            num_rows = (num_images + num_columns - 1) // num_columns
 
-                # Display the cropped image
-                col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
+            for row in range(num_rows):
+                cols = st.columns(num_columns)
+                for col in cols:
+                    if cropped_images:
+                        cropped_image = cropped_images.pop(0)
+                        filename = cropped_filenames.pop(0)
 
-                # Read the cropped image data
-                with open(filename, "rb") as f:
-                    image_data = f.read()
+                        # Display the cropped image
+                        col.image(cropped_image, caption=f"Cropped Image", use_column_width=True)
 
-                # Generate base64-encoded image data
-                b64_image = base64.b64encode(image_data).decode()
+                        # Read the cropped image data
+                        with open(filename, "rb") as f:
+                            image_data = f.read()
 
-                # Add a download button for the cropped image
-                download_button_str = f"Download {filename}"
-                col.markdown(f'<a href="data:image/jpeg;base64,{b64_image}" download="{filename}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
-else:
-    st.warning("Please provide an image URL or upload an image.")
+                        # Generate base64-encoded image data
+                        b64_image = base64.b64encode(image_data).decode()
 
-# Create a file change event handler for watchdog
-class FileChangeHandler(watchdog.events.PatternMatchingEventHandler):
-    def __init__(self, patterns):
-        super().__init__(patterns=patterns)
+                        # Add a download button for the cropped image
+                        download_button_str = f"Download {filename}"
+                        col.markdown(
+                            f'<a href="data:image/jpeg;base64,{b64_image}" download="{filename}"><button type="button">{download_button_str}</button></a>',
+                            unsafe_allow_html=True
+                        )
 
-    def on_modified(self, event):
-        st.experimental_rerun()
-
-# Start the watchdog observer to monitor the file changes
-event_handler = FileChangeHandler(patterns=["*.py"])
-observer = watchdog.observers.Observer()
-observer.schedule(event_handler, ".", recursive=False)
-observer.start()
-
-# Run the Streamlit app
-st.experimental_rerun()
+    except Exception as e:
+        st.error(f"Error: {e}")
+        subprocess.Popen("streamlit run app.py", shell=True)
+        st.stop()
