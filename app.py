@@ -16,7 +16,6 @@ def crop_image(image, coordinates):
     cropped_image = image.crop(coordinates)
 
     return cropped_image
-
 # Streamlit app
 st.title("Object Detection with YOLO")
 
