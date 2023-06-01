@@ -17,7 +17,7 @@ def crop_image(image_url, coordinates):
     response = requests.get(image_url, stream=True)
     response.raise_for_status()
     with open(image_path, "wb") as f:
-        for chunk in response.iter_contentsize('longest_edge':=8192):
+        for chunk in response.iter_content(chunk_size=8192):
             f.write(chunk)
 
     # Open the downloaded image
