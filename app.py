@@ -38,8 +38,26 @@ st.title("Object Detection with YOLO")
 url = st.text_input("Enter the image URL:")
 if url:
     # Load the image from the provided URL
-    image = Image.open(requests.get(url, stream=True).raw)
+   option = st.radio("Choose Image Source:", ("URL", "Local File Upload"))
 
+if option == "URL":
+# Display an input text box for the image URL
+url = st.text_input("Enter the image URL:")
+if url:
+# Load the image from the provided URL
+image = Image.open(requests.get(url, stream=True).raw)
+
+elif option == "Local File Upload":
+# Display a file uploader for local file upload
+file = st.file_uploader("Upload Image", type=["jpg"])
+if file is not None:
+# Load the image from the uploaded file
+image = Image.open(file)
+
+if 'image' in locals():
+# Process the image using the YOLO model
+inputs = image_processor(images=image, return_tensors="pt")
+outputs = model(**inputs)
     # Process the image using the YOLO model
     inputs = image_processor(images=image, return_tensors="pt")
     outputs = model(**inputs)
