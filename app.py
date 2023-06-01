@@ -5,6 +5,8 @@ import requests
 import os
 import base64
 from transformers import YolosImageProcessor, YolosForObjectDetection
+import watchdog.events
+import watchdog.observers
 
 # Load the YOLO model and image processor
 model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
@@ -109,3 +111,22 @@ if url != "" or file is not None:
                 # Add a download button for the cropped image
                 download_button_str = f"Download {filename}"
                 col.markdown(f'<a href="data:image/jpeg;base64,{b64_image}" download="{filename}"><button type="button">{download_button_str}</button></a>', unsafe_allow_html=True)
+else:
+    st.warning("Please provide an image URL or upload an image.")
+
+# Create a file change event handler for watchdog
+class FileChangeHandler(watchdog.events.PatternMatchingEventHandler):
+    def __init__(self, patterns):
+        super().__init__(patterns=patterns)
+
+    def on_modified(self, event):
+        st.experimental_rerun()
+
+# Start the watchdog observer to monitor the file changes
+event_handler = FileChangeHandler(patterns=["*.py"])
+observer = watchdog.observers.Observer()
+observer.schedule(event_handler, ".", recursive=False)
+observer.start()
+
+# Run the Streamlit app
+st.experimental_rerun()
