@@ -1,4 +1,5 @@
-streamlit
+streamlit==1.4.0
 torch
 transformers
 Pillow
+requests==2.26.0
