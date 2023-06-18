@@ -36,10 +36,16 @@ if input_type == "Image URL":
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
             box = [round(i, 2) for i in box.tolist()]
+            object_name = model.config.id2label[label.item()]
             st.write(
-                f"Detected {model.config.id2label[label.item()]} with confidence "
-                f"{round(score.item(), 3)} at location {box}"
+                f"Detected {object_name} with confidence {round(score.item(), 3)} at location {box}"
             )
+            
+            # Crop the detected object from the image
+            cropped_image = image.crop(box)
+            
+            # Display the cropped image with the object name
+            st.image(cropped_image, caption=object_name, use_column_width=True)
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
@@ -67,10 +73,16 @@ else:
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
             box = [round(i, 2) for i in box.tolist()]
+            object_name = model.config.id2label[label.item()]
             st.write(
-                f"Detected {model.config.id2label[label.item()]} with confidence "
-                f"{round(score.item(), 3)} at location {box}"
+                f"Detected {object_name} with confidence {round(score.item(), 3)} at location {box}"
             )
+            
+            # Crop the detected object from the image
+            cropped_image = image.crop(box)
+            
+            # Display the cropped image with the object name
+            st.image(cropped_image, caption=object_name, use_column_width=True)
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
