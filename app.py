@@ -11,11 +11,12 @@ image_processor = YolosImageProcessor.from_pretrained("hustvl/yolos-tiny")
 # Streamlit app
 st.title("Object Detection with YOLO")
 
-# Display an input text box for the image URL
-url = st.text_input("Enter the image URL:")
-if url:
-    # Load the image from the provided URL
-    image = Image.open(requests.get(url, stream=True).raw)
+# Display an input file uploader for the image
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    # Load the uploaded image
+    image = Image.open(uploaded_file)
 
     # Process the image using the YOLO model
     inputs = image_processor(images=image, return_tensors="pt")
