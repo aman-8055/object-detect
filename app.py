@@ -33,6 +33,9 @@ if input_type == "Image URL":
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
+        # Create a list to store the cropped images
+        cropped_images = []
+
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
             box = [round(i, 2) for i in box.tolist()]
@@ -40,12 +43,22 @@ if input_type == "Image URL":
             st.write(
                 f"Detected {object_name} with confidence {round(score.item(), 3)} at location {box}"
             )
-            
+
             # Crop the detected object from the image
             cropped_image = image.crop(box)
-            
-            # Display the cropped image with the object name
-            st.image(cropped_image, caption=object_name, use_column_width=True)
+            cropped_images.append(cropped_image)
+
+        # Display the cropped images in a grid layout
+        num_cols = 3
+        num_images = len(cropped_images)
+        num_rows = (num_images + num_cols - 1) // num_cols
+
+        for i in range(num_rows):
+            cols = st.beta_columns(num_cols)
+            for j in range(num_cols):
+                idx = i * num_cols + j
+                if idx < num_images:
+                    cols[j].image(cropped_images[idx], caption=object_name, use_column_width=True)
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
@@ -70,6 +83,9 @@ else:
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
+        # Create a list to store the cropped images
+        cropped_images = []
+
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
             box = [round(i, 2) for i in box.tolist()]
@@ -77,12 +93,22 @@ else:
             st.write(
                 f"Detected {object_name} with confidence {round(score.item(), 3)} at location {box}"
             )
-            
+
             # Crop the detected object from the image
             cropped_image = image.crop(box)
-            
-            # Display the cropped image with the object name
-            st.image(cropped_image, caption=object_name, use_column_width=True)
+            cropped_images.append(cropped_image)
+
+        # Display the cropped images in a grid layout
+        num_cols = 3
+        num_images = len(cropped_images)
+        num_rows = (num_images + num_cols - 1) // num_cols
+
+        for i in range(num_rows):
+            cols = st.beta_columns(num_cols)
+            for j in range(num_cols):
+                idx = i * num_cols + j
+                if idx < num_images:
+                    cols[j].image(cropped_images[idx], caption=object_name, use_column_width=True)
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
