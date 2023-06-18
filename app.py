@@ -54,7 +54,7 @@ if input_type == "Image URL":
         num_rows = (num_images + num_cols - 1) // num_cols
 
         for i in range(num_rows):
-            cols = st.beta_columns(num_cols)
+            cols = st.columns(num_cols)
             for j in range(num_cols):
                 idx = i * num_cols + j
                 if idx < num_images:
